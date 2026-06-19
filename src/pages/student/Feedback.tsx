@@ -1,12 +1,39 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2 } from 'lucide-react';
+import { useApp } from '../../contexts/AppContext';
+import { triggerDevNotification } from '../../lib/notifications';
 
 export default function StudentFeedback() {
+  const { settings, currentUser } = useApp();
   const [submitted, setSubmitted] = useState(false);
+  const [category, setCategory] = useState('curric_feedback');
+  const [title, setTitle] = useState('');
+  const [comments, setComments] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title || !comments) return;
+
+    // Select natural wording for category
+    const categoryLabel = 
+      category === 'curric_feedback' ? 'Course Curriculum Delivery' :
+      category === 'facilities_feedback' ? 'Lab Facilities Improvement' : 
+      'Dining or Hostel Grievance';
+
+    const authorName = currentUser?.name || 'Anonymous Student';
+    const emailToUse = settings.dev_email || 'info.qasimusman.cse@gmail.com';
+
+    // Dispatches a highly detailed system event
+    triggerDevNotification(
+      'Student Grievance / Feedback',
+      `${authorName} (${currentUser?.role || 'Student'})`,
+      `Category: ${categoryLabel} | Title: "${title}" | Detail: ${comments}`,
+      emailToUse
+    );
+
     setSubmitted(true);
+    setTitle('');
+    setComments('');
     setTimeout(() => setSubmitted(false), 3100);
   };
 
@@ -24,7 +51,7 @@ export default function StudentFeedback() {
             <CheckCircle2 className="w-12 h-12 text-emerald-500 animate-bounce" />
             <h3 className="font-bold text-sm text-slate-800 dark:text-white">Feedback Record Received</h3>
             <p className="text-xs text-slate-500 max-w-sm">
-              Thank you! Your suggestion or grievance has been logged securely inside the HOD administrative registries.
+              Thank you! Your feedback has been registered and dispatched. A notification has been routed to the developer at {settings.dev_email || 'info.qasimusman.cse@gmail.com'}.
             </p>
           </div>
         ) : (
@@ -35,7 +62,11 @@ export default function StudentFeedback() {
 
             <div className="space-y-1">
               <label className="text-[10px] uppercase font-bold text-slate-400">Feedback Type / Category</label>
-              <select className="w-full px-3 py-2 border border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none">
+              <select 
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none"
+              >
                 <option value="curric_feedback">Course curriculum delivery feedback</option>
                 <option value="facilities_feedback">Lab facilities improvement comment</option>
                 <option value="hostel_feedback">Dining or Hostel grievance report</option>
@@ -48,6 +79,8 @@ export default function StudentFeedback() {
                 type="text"
                 required
                 placeholder="e.g. Lab 2 computer issues"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none"
               />
             </div>
@@ -58,6 +91,8 @@ export default function StudentFeedback() {
                 rows={4}
                 required
                 placeholder="Provide constructive feedback..."
+                value={comments}
+                onChange={(e) => setComments(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-slate-950 dark:text-white rounded-lg focus:outline-none"
               />
             </div>

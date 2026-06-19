@@ -6,11 +6,14 @@ import { LoadingState } from './components/shared/LoadingState';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { CLERK_PUBLISHABLE_KEY, IS_MOCK_AUTH } from './lib/clerk-config';
 import { ClerkSync } from './components/shared/ClerkSync';
+import { RoleGuard } from './components/shared/RoleGuard';
+import { DevNotificationToast } from './components/shared/DevNotificationToast';
 
 // Standard static page imports for critical landing paths
 import LandingIndex from './pages/Index';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import AboutDeveloper from './pages/AboutDeveloper';
 
 // Lazy loader wrapper for robust bundle efficiency
 const LazyPage = ({ importer }: { importer: () => Promise<{ default: React.ComponentType<any> }> }) => {
@@ -53,6 +56,8 @@ const TEACHER_ROUTES: Record<string, () => Promise<{ default: React.ComponentTyp
   '/teacher/attendance': () => import('./pages/teacher/Attendance'),
   '/teacher/results': () => import('./pages/teacher/Results'),
   '/teacher/notices': () => import('./pages/teacher/Notices'),
+  '/teacher/assignments': () => import('./pages/teacher/Assignments'),
+  '/teacher/materials': () => import('./pages/teacher/Materials'),
 };
 
 function AppContent() {
@@ -100,19 +105,48 @@ function AppContent() {
 
   // Auth pages route matchers
   if (currentPath === '/sign-in') {
+    if (currentUser) {
+      setTimeout(() => {
+        window.history.replaceState(null, '', `/${currentUser.role}/dashboard`);
+        window.dispatchEvent(new Event('popstate'));
+      }, 0);
+      return <LoadingState message="Redirecting to your UET dashboard..." fullScreen />;
+    }
     return <SignIn />;
   }
   if (currentPath === '/sign-up') {
+    if (currentUser) {
+      setTimeout(() => {
+        window.history.replaceState(null, '', `/${currentUser.role}/dashboard`);
+        window.dispatchEvent(new Event('popstate'));
+      }, 0);
+      return <LoadingState message="Redirecting to your UET dashboard..." fullScreen />;
+    }
     return <SignUp />;
+  }
+  if (currentPath === '/') {
+    if (currentUser) {
+      setTimeout(() => {
+        window.history.replaceState(null, '', `/${currentUser.role}/dashboard`);
+        window.dispatchEvent(new Event('popstate'));
+      }, 0);
+      return <LoadingState message="Redirecting to your UET dashboard..." fullScreen />;
+    }
+    return <LandingIndex />;
+  }
+  if (currentPath === '/about-developer') {
+    return <AboutDeveloper />;
   }
 
   // Student routes matched inside Dashboard Shell frame
   if (currentPath.startsWith('/student/')) {
     const importer = STUDENT_ROUTES[currentPath] || STUDENT_ROUTES['/student/dashboard'];
     return (
-      <DashboardLayout>
-        <LazyPage importer={importer} />
-      </DashboardLayout>
+      <RoleGuard allowedRoles={['student']}>
+        <DashboardLayout>
+          <LazyPage importer={importer} />
+        </DashboardLayout>
+      </RoleGuard>
     );
   }
 
@@ -120,18 +154,22 @@ function AppContent() {
   if (currentPath.startsWith('/teacher/')) {
     const importer = TEACHER_ROUTES[currentPath] || TEACHER_ROUTES['/teacher/dashboard'];
     return (
-      <DashboardLayout>
-        <LazyPage importer={importer} />
-      </DashboardLayout>
+      <RoleGuard allowedRoles={['teacher']}>
+        <DashboardLayout>
+          <LazyPage importer={importer} />
+        </DashboardLayout>
+      </RoleGuard>
     );
   }
 
   // Admin routes fallback dynamically to the unified Administrator Terminal console
   if (currentPath.startsWith('/admin/')) {
     return (
-      <DashboardLayout>
-        <LazyPage importer={() => import('./pages/admin/AdminConsole')} />
-      </DashboardLayout>
+      <RoleGuard allowedRoles={['admin']}>
+        <DashboardLayout>
+          <LazyPage importer={() => import('./pages/admin/AdminConsole')} />
+        </DashboardLayout>
+      </RoleGuard>
     );
   }
 
@@ -145,6 +183,7 @@ export default function App() {
       {!IS_MOCK_AUTH && <ClerkSync />}
       <ThemeProvider>
         <AppContent />
+        <DevNotificationToast />
       </ThemeProvider>
     </AppProvider>
   );

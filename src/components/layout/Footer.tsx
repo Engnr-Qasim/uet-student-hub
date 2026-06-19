@@ -43,7 +43,11 @@ export const Footer: React.FC = () => {
 
         <div className="border-t border-slate-800 mt-10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500">
           <p>© {new Date().getFullYear()} University of Engineering and Technology (UET). All rights reserved.</p>
-          <p className="mt-2 md:mt-0">Developed by <span className="text-yellow-500 font-semibold">Muhammad Qasim Usman</span> — CSE Department</p>
+          <div className="mt-4 md:mt-0 text-center md:text-right space-y-0.5">
+            <p className="font-extrabold text-slate-400">Developed By <span className="text-yellow-500 font-bold">Muhammad Qasim Usman</span></p>
+            <p className="text-[10px] text-slate-500">Computer Systems Engineering</p>
+            <p className="text-[10px] text-slate-500">UET Peshawar</p>
+          </div>
         </div>
       </div>
     </footer>

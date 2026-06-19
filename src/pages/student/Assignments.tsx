@@ -5,10 +5,13 @@ import { FileUpload } from '../../components/shared/FileUpload';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { ClipboardList, Calendar, Award, CheckCircle2, ChevronDown, Check, ChevronUp } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useApp } from '../../contexts/AppContext';
+import { triggerDevNotification } from '../../lib/notifications';
 
 export default function StudentAssignments() {
   const { profile } = useProfile();
-  const [assignments, setAssignments] = useState(uetDB.assignments);
+  const { settings } = useApp();
+  const [assignments, setAssignments ] = useState(uetDB.assignments);
   const [submissions, setSubmissions] = useState(uetDB.submissions);
   
   const [selectedAsgId, setSelectedAsgId] = useState<string | null>(null);
@@ -30,6 +33,18 @@ export default function StudentAssignments() {
     if (newSub) {
       setSubmissions([newSub, ...submissions]);
       setSuccessMsg(true);
+
+      const targetAsg = assignments.find(a => a.id === asgId);
+      const asgTitle = targetAsg ? targetAsg.title : 'Course Deliverable';
+      const emailToUse = settings.dev_email || 'info.qasimusman.cse@gmail.com';
+
+      triggerDevNotification(
+        'Assignment Submission',
+        `${profile.name} (Student Portal)`,
+        `Uploaded work: "${uploadedName}" in response to assignment: "${asgTitle}"`,
+        emailToUse
+      );
+
       setUploadedName('');
       setUploadedUrl('');
       setTimeout(() => setSuccessMsg(false), 4000);

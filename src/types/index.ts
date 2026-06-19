@@ -176,6 +176,17 @@ export interface UniversitySettings {
   address: string;
   default_theme: 'light' | 'dark' | 'blue' | 'green';
   updated_at?: string;
+  dev_name?: string;
+  dev_pic?: string;
+  dev_dept?: string;
+  dev_univ?: string;
+  dev_bio?: string;
+  dev_skills?: string;
+  dev_email?: string;
+  dev_whatsapp?: string;
+  dev_linkedin?: string;
+  dev_github?: string;
+  dev_instagram?: string;
 }
 
 export interface Feedback {

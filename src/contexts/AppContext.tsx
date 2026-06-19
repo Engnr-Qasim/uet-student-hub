@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { UserProfile, UniversitySettings } from '../types';
 import { uetDB, mockUniversitySettings } from '../data/mockData';
 import { IS_MOCK_AUTH } from '../lib/clerk-config';
@@ -20,8 +20,15 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<UniversitySettings>(mockUniversitySettings);
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [currentUser, setCurrentUserRaw] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const setCurrentUser = useCallback((user: UserProfile | null) => {
+    setCurrentUserRaw(user);
+    if (user) {
+      localStorage.setItem(`uet_profile_override_${user.id}`, JSON.stringify(user));
+    }
+  }, []);
 
   // Load profile from database/localStorage on startup
   useEffect(() => {
@@ -37,7 +44,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (IS_MOCK_AUTH) {
           const lastProfileId = localStorage.getItem('uet_active_profile_id') || 'prof-student-1';
           const profile = uetDB.profiles.find(p => p.id === lastProfileId) || uetDB.profiles[0];
-          setCurrentUser(profile);
+          const overridden = localStorage.getItem(`uet_profile_override_${lastProfileId}`);
+          if (overridden) {
+            setCurrentUserRaw(JSON.parse(overridden));
+          } else {
+            setCurrentUserRaw(profile);
+          }
         } else {
           // If Clerk is used, ClerkProvider handles login, we will sync via custom hooks
         }
@@ -50,28 +62,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     loadData();
   }, []);
 
-  const updateSettings = (newSettings: Partial<UniversitySettings>) => {
-    const updated = { ...settings, ...newSettings };
-    setSettings(updated);
-    localStorage.setItem('uet_settings', JSON.stringify(updated));
-  };
+  const updateSettings = useCallback((newSettings: Partial<UniversitySettings>) => {
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      localStorage.setItem('uet_settings', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
-  const switchMockRole = (role: 'student' | 'teacher' | 'admin') => {
+  const switchMockRole = useCallback((role: 'student' | 'teacher' | 'admin') => {
     let targetProfileId = 'prof-student-1';
     if (role === 'teacher') targetProfileId = 'prof-teacher-1';
     if (role === 'admin') targetProfileId = 'prof-admin-1';
 
     const profile = uetDB.profiles.find(p => p.id === targetProfileId);
     if (profile) {
-      setCurrentUser(profile);
+      const overridden = localStorage.getItem(`uet_profile_override_${targetProfileId}`);
+      if (overridden) {
+        setCurrentUserRaw(JSON.parse(overridden));
+      } else {
+        setCurrentUserRaw(profile);
+      }
       localStorage.setItem('uet_active_profile_id', targetProfileId);
     }
-  };
+  }, []);
 
-  const logout = () => {
-    setCurrentUser(null);
+  const logout = useCallback(() => {
+    setCurrentUserRaw(null);
     localStorage.removeItem('uet_active_profile_id');
-  };
+    // Clear all profile overrides to guarantee clean state
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('uet_profile_override_') || key.startsWith('clerk-'))) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
+  }, []);
 
   return (
     <AppContext.Provider

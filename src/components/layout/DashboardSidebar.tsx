@@ -221,10 +221,19 @@ export const DashboardSidebar: React.FC = () => {
 
         {/* Logout CTA */}
         <button
-          onClick={() => {
-            if (isMockMode) logout();
+          onClick={async () => {
+            const isMockModeLocal = isMockMode || !((window as any).Clerk);
+            if (!isMockModeLocal) {
+              try {
+                await (window as any).Clerk?.signOut();
+              } catch (err) {
+                console.error("Clerk logout failed", err);
+              }
+            }
+            logout();
+            window.location.href = '/';
           }}
-          className="w-full flex items-center space-x-3 px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all border border-transparent cursor-pointer mt-4"
+          className="w-full flex items-center space-x-3 px-3 py-2 text-xs font-bold text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all border border-transparent cursor-pointer mt-4 cursor-pointer"
         >
           <LogOut className="w-4.5 h-4.5" />
           <span>Sign Out / Lock</span>

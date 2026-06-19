@@ -460,7 +460,18 @@ export const mockUniversitySettings: UniversitySettings = {
   contact_email: 'portal.admin@uet.edu.pk',
   contact_phone: '+92-42-99029000',
   address: 'G.T. Road, Lahore, Pakistan',
-  default_theme: 'navy' as any
+  default_theme: 'navy' as any,
+  dev_name: 'Muhammad Qasim Usman',
+  dev_pic: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=350',
+  dev_dept: 'Computer Systems Engineering',
+  dev_univ: 'University of Engineering and Technology (UET) Peshawar',
+  dev_bio: 'Muhammad Qasim Usman is a Computer Systems Engineering student at the University of Engineering and Technology (UET) Peshawar. He is passionate about software development, web technologies, system design, and innovative educational solutions. UET Student Hub was created to provide students, teachers, and administrators with a modern digital platform for academic management and collaboration.',
+  dev_skills: 'React, TypeScript, Node.js, Tailwind CSS, System Design, Software Engineering',
+  dev_email: 'info.qasimusman.cse@gmail.com',
+  dev_whatsapp: '+923717090091',
+  dev_linkedin: 'https://www.linkedin.com/in/muhammad-qasim-usman-9b26973a1',
+  dev_github: '',
+  dev_instagram: ''
 };
 
 // Simple reactive Local Database state mockup so that edits, uploads, and posts within the app are remembered during current app session!

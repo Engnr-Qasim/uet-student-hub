@@ -1,30 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProfile } from '../../hooks/useProfile';
 import { useApp } from '../../contexts/AppContext';
-import { User, Mail, Phone, Calendar, Landmark, MapPin, Edit, Save, CheckCircle2 } from 'lucide-react';
+import { User, Phone, Landmark, MapPin, Edit, Save, CheckCircle2, Upload, GraduationCap } from 'lucide-react';
 
 export default function StudentProfile() {
   const { profile } = useProfile();
-  const { isMockMode, currentUser, setCurrentUser } = useApp();
+  const { currentUser, setCurrentUser } = useApp();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: profile?.name || 'Ahmad Hassan',
-    phone: profile?.phone || '+92-333-5551212',
-    avatar_url: profile?.avatar_url || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200',
+    name: 'Ahmad Hassan',
+    phone: '+92-333-5551212',
+    avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200',
+    reg_number: '2021-CSE-001',
+    department_name: 'Computer Systems Engineering',
+    semester: 5
   });
   const [success, setSuccess] = useState(false);
+
+  // Sync state with the actual active loaded profile
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name || '',
+        phone: profile.phone || '',
+        avatar_url: profile.avatar_url || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200',
+        reg_number: profile.reg_number || '2021-CSE-001',
+        department_name: profile.department_name || 'Computer Systems Engineering',
+        semester: profile.semester || 5
+      });
+    }
+  }, [profile]);
 
   if (!profile) return null;
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (isMockMode && currentUser) {
+    if (currentUser) {
       const updated = { ...currentUser, ...formData };
       setCurrentUser(updated);
       setSuccess(true);
       setIsEditing(false);
       setTimeout(() => setSuccess(false), 3000);
+    }
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, avatar_url: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -41,12 +69,24 @@ export default function StudentProfile() {
         {/* Profile Card Column Left */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 p-6 rounded-2xl shadow-xs text-center space-y-4">
-            <div className="relative inline-block">
+            <div className="relative inline-block group">
               <img 
                 src={formData.avatar_url} 
                 alt={formData.name} 
                 className="w-24 h-24 rounded-full object-cover border-4 border-[rgb(var(--university-accent))] mx-auto shadow-sm"
               />
+              {isEditing && (
+                <label className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-white text-[9px] font-bold uppercase tracking-wider cursor-pointer transition-all">
+                  <Upload className="w-4 h-4 mr-1 shrink-0" />
+                  Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
 
             <div>
@@ -59,11 +99,11 @@ export default function StudentProfile() {
             <div className="text-xs text-slate-400 font-mono space-y-1 bg-slate-50 dark:bg-slate-950 py-3 rounded-xl border border-slate-100 dark:border-slate-850">
               <div className="flex justify-between px-4">
                 <span>Reg Number:</span>
-                <span className="font-bold text-slate-700 dark:text-slate-350">{profile.reg_number || '2021-CSE-001'}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-350">{formData.reg_number}</span>
               </div>
               <div className="flex justify-between px-4">
                 <span>Semester:</span>
-                <span className="font-bold text-slate-700 dark:text-slate-350">Semester {profile.semester || 5}</span>
+                <span className="font-bold text-slate-700 dark:text-slate-350">Semester {formData.semester}</span>
               </div>
             </div>
           </div>
@@ -79,14 +119,14 @@ export default function StudentProfile() {
                 className="flex items-center space-x-1.5 px-3 py-1.5 border border-slate-200 dark:border-slate-800 hover:border-slate-300 rounded-lg text-slate-500 dark:text-slate-400 text-xs font-bold transition-all cursor-pointer"
               >
                 <Edit className="w-4 h-4" />
-                <span>{isEditing ? 'Cancel Edit' : 'Edit Contacts'}</span>
+                <span>{isEditing ? 'Cancel Edit' : 'Edit Credentials'}</span>
               </button>
             </div>
 
             {success && (
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs rounded-xl flex items-center space-x-2 mb-4">
                 <CheckCircle2 className="w-4.5 h-4.5" />
-                <span className="font-bold">Contact records successfully updated locally!</span>
+                <span className="font-bold">Academic details updated successfully across dynamic ID portals!</span>
               </div>
             )}
 
@@ -99,9 +139,10 @@ export default function StudentProfile() {
                     <input
                       type="text"
                       disabled={!isEditing}
+                      required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none"
+                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 font-medium"
                     />
                   </div>
                 </div>
@@ -113,10 +154,46 @@ export default function StudentProfile() {
                     <input
                       type="text"
                       disabled={!isEditing}
+                      required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none"
+                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 font-medium"
                     />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Registration Number</label>
+                  <div className="flex items-center space-x-2 text-xs text-slate-800 dark:text-slate-250">
+                    <GraduationCap className="w-4 h-4 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      disabled={!isEditing}
+                      required
+                      value={formData.reg_number}
+                      placeholder="e.g. 2021-CSE-124"
+                      onChange={(e) => setFormData({ ...formData, reg_number: e.target.value })}
+                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Running Semester</label>
+                  <div className="flex items-center space-x-2 text-xs text-slate-800 dark:text-slate-250">
+                    <GraduationCap className="w-4 h-4 text-slate-400 shrink-0" />
+                    <select
+                      disabled={!isEditing}
+                      value={formData.semester}
+                      onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
+                      className="w-full bg-slate-50 disabled:bg-transparent dark:bg-slate-950 disabled:dark:bg-transparent text-xs px-3 py-2 border disabled:border-transparent border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400 font-medium"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map(s => (
+                        <option key={s} value={s}>Semester {s}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -124,17 +201,31 @@ export default function StudentProfile() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="space-y-1">
                   <label className="text-[10px] uppercase font-bold text-slate-400">Academics Enrolled Division</label>
-                  <div className="flex items-center space-x-2 text-xs text-slate-500 py-2">
+                  <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium">
                     <Landmark className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>{profile.department_name || 'DCSE Computer Systems Eng.'}</span>
+                    {isEditing ? (
+                      <select
+                        value={formData.department_name}
+                        onChange={(e) => setFormData({ ...formData, department_name: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 text-xs px-3 py-2 border border-slate-200 dark:border-slate-850 dark:text-white rounded-lg focus:ring-1 focus:ring-slate-400 font-medium"
+                      >
+                        <option value="Computer Systems Engineering">Computer Systems Engineering</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                      </select>
+                    ) : (
+                      <span>{formData.department_name}</span>
+                    )}
                   </div>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-[10px] uppercase font-bold text-slate-400">Campus Residence Address</label>
-                  <div className="flex items-center space-x-2 text-xs text-slate-505 py-2">
+                  <div className="flex items-center space-x-2 text-xs text-slate-500 font-medium py-2">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                    <span>Liaquat Hall (Room 101), Main Campus Lahore</span>
+                    <span>Liaquat Hall (Room 101), Main Campus Peshawar</span>
                   </div>
                 </div>
               </div>
@@ -143,10 +234,10 @@ export default function StudentProfile() {
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-850 flex justify-end">
                   <button
                     type="submit"
-                    className="flex items-center space-x-1.5 px-4 py-2 bg-[rgb(var(--university-primary))] hover:bg-opacity-95 text-white text-xs font-bold rounded-lg cursor-pointer transition-all"
+                    className="flex items-center space-x-1.5 px-5 py-2.5 bg-[rgb(var(--university-primary))] hover:bg-opacity-95 text-white text-xs font-black uppercase tracking-wider rounded-xl cursor-pointer shadow-sm transition-all"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>Save Contact Card</span>
+                    <Save className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <span>Save Profiles & Cards</span>
                   </button>
                 </div>
               )}
