@@ -1,0 +1,100 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { UserProfile, UniversitySettings } from '../types';
+import { uetDB, mockUniversitySettings } from '../data/mockData';
+import { IS_MOCK_AUTH } from '../lib/clerk-config';
+
+interface AppContextType {
+  settings: UniversitySettings;
+  updateSettings: (newSettings: Partial<UniversitySettings>) => void;
+  isLoading: boolean;
+  
+  // Auth state (Clerk or Mock bypass)
+  currentUser: UserProfile | null;
+  setCurrentUser: (user: UserProfile | null) => void;
+  isMockMode: boolean;
+  switchMockRole: (role: 'student' | 'teacher' | 'admin') => void;
+  logout: () => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [settings, setSettings] = useState<UniversitySettings>(mockUniversitySettings);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load profile from database/localStorage on startup
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Load university settings
+        const storedSettings = localStorage.getItem('uet_settings');
+        if (storedSettings) {
+          setSettings(JSON.parse(storedSettings));
+        }
+
+        // Setup default user for Mock Auth mode
+        if (IS_MOCK_AUTH) {
+          const lastProfileId = localStorage.getItem('uet_active_profile_id') || 'prof-student-1';
+          const profile = uetDB.profiles.find(p => p.id === lastProfileId) || uetDB.profiles[0];
+          setCurrentUser(profile);
+        } else {
+          // If Clerk is used, ClerkProvider handles login, we will sync via custom hooks
+        }
+      } catch (err) {
+        console.error('Error loading startup context:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const updateSettings = (newSettings: Partial<UniversitySettings>) => {
+    const updated = { ...settings, ...newSettings };
+    setSettings(updated);
+    localStorage.setItem('uet_settings', JSON.stringify(updated));
+  };
+
+  const switchMockRole = (role: 'student' | 'teacher' | 'admin') => {
+    let targetProfileId = 'prof-student-1';
+    if (role === 'teacher') targetProfileId = 'prof-teacher-1';
+    if (role === 'admin') targetProfileId = 'prof-admin-1';
+
+    const profile = uetDB.profiles.find(p => p.id === targetProfileId);
+    if (profile) {
+      setCurrentUser(profile);
+      localStorage.setItem('uet_active_profile_id', targetProfileId);
+    }
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('uet_active_profile_id');
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        settings,
+        updateSettings,
+        isLoading,
+        currentUser,
+        setCurrentUser,
+        isMockMode: IS_MOCK_AUTH,
+        switchMockRole,
+        logout
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+};

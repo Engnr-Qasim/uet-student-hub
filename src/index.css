@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-sleek-navy: #0A1D37;
+  --color-sleek-gold: #D4AF37;
+  --color-sleek-canvas: #F8FAFC;
+}
+
+:root {
+  --university-primary: 10, 29, 55; /* #0A1D37 */
+  --university-accent: 212, 175, 55; /* #D4AF37 */
+}
+
+/* Base resets & styles matching Sleek Interface */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-sleek-canvas);
+}
+
+.theme-light {
+  --university-primary: 10, 29, 55;
+  --university-accent: 212, 175, 55;
+}
+
+.theme-dark {
+  --university-primary: 15, 23, 42;
+  --university-accent: 212, 175, 55;
+}
+
+.theme-blue {
+  --university-primary: 30, 64, 175;
+  --university-accent: 212, 175, 55;
+}
+
+.theme-green {
+  --university-primary: 6, 95, 70;
+  --university-accent: 52, 211, 153;
+}
+
+/* Sleek custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(10, 29, 55, 0.1);
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(10, 29, 55, 0.2);
+}

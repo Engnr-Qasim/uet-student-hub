@@ -1,0 +1,6 @@
+{
+  "name": "UET Student Hub",
+  "description": "A full-featured university portal and management system for the University of Engineering and Technology, offering student, teacher, and admin dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
