@@ -27,7 +27,7 @@ export default function AdminConsole() {
   const { settings, updateSettings } = useApp();
 
   const [devName, setDevName] = useState(settings.dev_name || 'Muhammad Qasim Usman');
-  const [devPic, setDevPic] = useState(settings.dev_pic || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=350');
+  const [devPic, setDevPic] = useState(settings.dev_pic || '/src/assets/images/dev_photo_1781959281322.jpg');
   const [devBio, setDevBio] = useState(settings.dev_bio || 'Muhammad Qasim Usman is a Computer Systems Engineering student at the University of Engineering and Technology (UET) Peshawar. He is passionate about software development, web technologies, system design, and innovative educational solutions. UET Student Hub was created to provide students, teachers, and administrators with a modern digital platform for academic management and collaboration.');
   const [devSkills, setDevSkills] = useState(settings.dev_skills || 'React, TypeScript, Node.js, Tailwind CSS, System Design, Software Engineering');
   const [devEmail, setDevEmail] = useState(settings.dev_email || 'info.qasimusman.cse@gmail.com');

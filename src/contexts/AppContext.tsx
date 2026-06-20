@@ -37,7 +37,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         // Load university settings
         const storedSettings = localStorage.getItem('uet_settings');
         if (storedSettings) {
-          setSettings(JSON.parse(storedSettings));
+          const parsed = JSON.parse(storedSettings);
+          // Auto migrate legacy dev pic unsplash url to high res headshot asset
+          if (parsed.dev_pic === 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=350') {
+            parsed.dev_pic = '/src/assets/images/dev_photo_1781959281322.jpg';
+            localStorage.setItem('uet_settings', JSON.stringify(parsed));
+          }
+          setSettings(parsed);
         }
 
         // Setup default user for Mock Auth mode

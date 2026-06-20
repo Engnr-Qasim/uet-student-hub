@@ -41,7 +41,7 @@ export default function AboutDeveloper() {
 
   // Load developer info from global settings (or fallback seamlessly)
   const devName = settings.dev_name || 'Muhammad Qasim Usman';
-  const devPic = settings.dev_pic || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=350';
+  const devPic = settings.dev_pic || '/src/assets/images/dev_photo_1781959281322.jpg';
   const devDept = settings.dev_dept || 'Computer Systems Engineering';
   const devUniv = settings.dev_univ || 'University of Engineering and Technology (UET) Peshawar';
   const devBio = settings.dev_bio || 'Muhammad Qasim Usman is a Computer Systems Engineering student at the University of Engineering and Technology (UET) Peshawar. He is passionate about software development, web technologies, system design, and innovative educational solutions. UET Student Hub was created to provide students, teachers, and administrators with a modern digital platform for academic management and collaboration.';

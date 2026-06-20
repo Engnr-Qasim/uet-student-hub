@@ -462,7 +462,7 @@ export const mockUniversitySettings: UniversitySettings = {
   address: 'G.T. Road, Lahore, Pakistan',
   default_theme: 'navy' as any,
   dev_name: 'Muhammad Qasim Usman',
-  dev_pic: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=350',
+  dev_pic: '/src/assets/images/dev_photo_1781959281322.jpg',
   dev_dept: 'Computer Systems Engineering',
   dev_univ: 'University of Engineering and Technology (UET) Peshawar',
   dev_bio: 'Muhammad Qasim Usman is a Computer Systems Engineering student at the University of Engineering and Technology (UET) Peshawar. He is passionate about software development, web technologies, system design, and innovative educational solutions. UET Student Hub was created to provide students, teachers, and administrators with a modern digital platform for academic management and collaboration.',
