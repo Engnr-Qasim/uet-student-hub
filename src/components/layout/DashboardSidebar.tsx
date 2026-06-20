@@ -31,12 +31,18 @@ import {
   Briefcase,
   Megaphone,
   UserCheck,
-  Palette
+  Palette,
+  X
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 
-export const DashboardSidebar: React.FC = () => {
+interface DashboardSidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ isOpen = false, onClose }) => {
   const { profile } = useProfile();
   const { theme } = useTheme();
   const { switchMockRole, isMockMode, logout } = useApp();
@@ -130,16 +136,27 @@ export const DashboardSidebar: React.FC = () => {
       : getAdminLinks();
 
   return (
-    <aside className="w-68 min-w-68 max-w-68 bg-[#0A1D37] border-r border-white/10 flex flex-col h-full sticky top-0 overflow-y-auto no-scrollbar font-sans" id="dashboard-main-sidebar">
+    <aside className={`fixed inset-y-0 left-0 z-50 lg:z-auto lg:static w-68 min-w-68 max-w-68 bg-[#0A1D37] border-r border-white/10 flex flex-col h-full overflow-y-auto no-scrollbar font-sans transition-transform duration-300 ease-in-out ${
+      isOpen ? 'translate-x-0' : '-translate-x-full'
+    } lg:translate-x-0`} id="dashboard-main-sidebar">
       {/* Brand Header */}
-      <div className="p-5 border-b border-white/10 bg-[#0A1D37] flex items-center space-x-3 shrink-0">
-        <div className="w-10 h-10 bg-[#D4AF37] rounded-lg flex items-center justify-center font-black text-[#0A1D37] text-sm shrink-0 shadow-md">
-          UET
+      <div className="p-5 border-b border-white/10 bg-[#0A1D37] flex items-center justify-between shrink-0">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-[#D4AF37] rounded-lg flex items-center justify-center font-black text-[#0A1D37] text-sm shrink-0 shadow-md">
+            UET
+          </div>
+          <div>
+            <span className="text-sm font-bold text-white leading-tight block">Student Hub</span>
+            <span className="text-[10px] font-semibold text-[#D4AF37] tracking-wider uppercase block mt-0.5">Portal v2.4</span>
+          </div>
         </div>
-        <div>
-          <span className="text-sm font-bold text-white leading-tight block">Student Hub</span>
-          <span className="text-[10px] font-semibold text-[#D4AF37] tracking-wider uppercase block mt-0.5">Portal v2.4</span>
-        </div>
+        <button 
+          onClick={onClose}
+          className="lg:hidden p-1.5 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+          aria-label="Close Sidebar"
+        >
+          <X className="w-4.5 h-4.5" />
+        </button>
       </div>
 
       {/* User Mini Card */}
@@ -172,6 +189,7 @@ export const DashboardSidebar: React.FC = () => {
                   <a
                     key={item.path}
                     href={item.path}
+                    onClick={onClose}
                     className={`flex items-center space-x-3 px-3 py-2 text-xs font-semibold rounded-lg transition-all border ${
                       isActive
                         ? 'bg-white/10 border-white/10 text-white font-bold shadow-inner'

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DashboardSidebar } from './DashboardSidebar';
 import { useProfile } from '../../hooks/useProfile';
 import { LoadingState } from '../shared/LoadingState';
-import { Bell, Search, GraduationCap } from 'lucide-react';
+import { Bell, Search, GraduationCap, Menu } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -10,6 +10,7 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { profile, loading } = useProfile();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (loading) {
     return <LoadingState message="Connecting to secure university directory..." fullScreen />;
@@ -18,18 +19,37 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F8FAFC] dark:bg-slate-950 text-slate-800 dark:text-slate-100" id="university-dashboard-view">
       {/* Sidebar Navigation */}
-      <DashboardSidebar />
+      <DashboardSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+
+      {/* Mobile Backdrop when Sidebar is Open */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 lg:hidden transition-opacity" 
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       {/* Primary Workstation */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Top Header Panel */}
-        <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 backdrop-blur px-6 flex items-center justify-between z-10 shrink-0">
-          {/* Quick Context Indicator */}
-          <div className="flex items-center space-x-2">
-            <GraduationCap className="w-5 h-5 text-[#0A1D37] dark:text-[#D4AF37]" />
-            <span className="text-xs font-bold tracking-tight text-[#0A1D37]/40 dark:text-slate-400 uppercase font-display">
-              UET DCSE Academic Console
-            </span>
+        <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 backdrop-blur px-4 md:px-6 flex items-center justify-between z-10 shrink-0">
+          {/* Menu button & Context Indicator */}
+          <div className="flex items-center space-x-3">
+            {/* Hamburger button for small screens */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-650 dark:text-slate-300 rounded-lg transition-colors cursor-pointer"
+              aria-label="Open sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-2">
+              <GraduationCap className="w-5 h-5 text-[#0A1D37] dark:text-[#D4AF37]" />
+              <span className="text-xs font-bold tracking-tight text-[#0A1D37]/40 dark:text-slate-400 uppercase font-display">
+                UET DCSE Academic Console
+              </span>
+            </div>
           </div>
 
           {/* Action Hub */}

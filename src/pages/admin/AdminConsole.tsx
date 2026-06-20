@@ -445,7 +445,7 @@ export default function AdminConsole() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase text-slate-450 block">Notice Type Category</label>
                   <select
@@ -572,7 +572,7 @@ export default function AdminConsole() {
                     ))}
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[9px] uppercase text-slate-400">Active Term Sem</label>
                     <input
@@ -785,7 +785,7 @@ export default function AdminConsole() {
                     className="w-full text-xs p-2 bg-slate-50 border rounded focus:outline-none dark:bg-slate-950 dark:text-white"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[9px] uppercase text-slate-455">Dept Short Code</label>
                     <input
@@ -891,7 +891,7 @@ export default function AdminConsole() {
                     className="w-full text-xs p-2 bg-slate-50 border rounded-lg focus:outline-none dark:bg-slate-950 dark:text-white"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[9px] uppercase text-slate-455">Course Code</label>
                     <input
@@ -917,7 +917,7 @@ export default function AdminConsole() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-[9px] uppercase text-slate-455">Department</label>
                     <select

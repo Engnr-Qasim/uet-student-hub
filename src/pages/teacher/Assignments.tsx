@@ -229,7 +229,7 @@ export default function TeacherAssignments() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-450 block">Target Class Course</label>
                 <select
@@ -304,7 +304,7 @@ export default function TeacherAssignments() {
                     <X className="w-4 h-4 text-slate-500" />
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-[9px] font-bold text-slate-400 uppercase">Awarded Marks</label>
                     <input
