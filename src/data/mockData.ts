@@ -476,32 +476,174 @@ export const mockUniversitySettings: UniversitySettings = {
 
 // Simple reactive Local Database state mockup so that edits, uploads, and posts within the app are remembered during current app session!
 class LocalDB {
-  profiles = [...mockProfiles];
-  notices = [...mockNotices];
-  assignments = [...mockAssignments];
-  submissions = [...mockSubmissions];
-  notes = [...mockNotes];
-  labReports = [...mockLabReports];
-  projects = [...mockProjects];
-  previousPapers = [...mockPreviousPapers];
-  attendance = [...mockAttendance];
-  results = [...mockResults];
-  feedback = [...mockFeedback];
-  fees = [...mockFees];
-  timetable = [...mockTimetable];
-  calendarEvents = [...mockCalendarEvents];
-  books = [...mockBooks];
-  borrowings = [...mockBorrowings];
-  hostelRooms = [...mockHostelRooms];
-  hostelAssignments = [...mockHostelAssignments];
-  internships = [...mockInternships];
-  internshipApplications = [...mockInternshipApplications];
-  placements = [...mockPlacements];
-  forumPosts = [...mockForumPosts];
-  forumComments = [...mockForumComments];
-  settings = { ...mockUniversitySettings };
-  courses = [...mockCourses];
-  departments = [...mockDepartments];
+  private _profiles!: UserProfile[];
+  private _notices!: Notice[];
+  private _assignments!: Assignment[];
+  private _submissions!: AssignmentSubmission[];
+  private _notes!: Note[];
+  private _labReports!: LabReport[];
+  private _projects!: SemesterProject[];
+  private _previousPapers!: PreviousPaper[];
+  private _attendance!: Attendance[];
+  private _results!: Result[];
+  private _feedback!: Feedback[];
+  private _fees!: Fee[];
+  private _timetable!: TimetableEntry[];
+  private _calendarEvents!: CalendarEvent[];
+  private _books!: LibraryBook[];
+  private _borrowings!: BookBorrowing[];
+  private _hostelRooms!: HostelRoom[];
+  private _hostelAssignments!: HostelAssignment[];
+  private _internships!: Internship[];
+  private _internshipApplications!: InternshipApplication[];
+  private _placements!: JobPlacement[];
+  private _forumPosts!: ForumPost[];
+  private _forumComments!: ForumComment[];
+  private _settings!: UniversitySettings;
+  private _courses!: Course[];
+  private _departments!: Department[];
+
+  private load<T>(key: string, defaultValue: T): T {
+    try {
+      const val = localStorage.getItem(`uet_db_${key}`);
+      return val ? JSON.parse(val) : defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
+  }
+
+  private save<T>(key: string, value: T) {
+    try {
+      localStorage.setItem(`uet_db_${key}`, JSON.stringify(value));
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  private makeProxy<T>(key: string, initial: T[]): T[] {
+    const raw = this.load(key, initial);
+    const self = this;
+    return new Proxy(raw, {
+      set(target, prop, value, receiver) {
+        const ret = Reflect.set(target, prop, value, receiver);
+        self.save(key, target);
+        // Force state saves to ensure local storage syncs immediately
+        return ret;
+      },
+      deleteProperty(target, prop) {
+        const ret = Reflect.deleteProperty(target, prop);
+        self.save(key, target);
+        return ret;
+      }
+    });
+  }
+
+  constructor() {
+    this._profiles = this.makeProxy('profiles', mockProfiles);
+    this._notices = this.makeProxy('notices', mockNotices);
+    this._assignments = this.makeProxy('assignments', mockAssignments);
+    this._submissions = this.makeProxy('submissions', mockSubmissions);
+    this._notes = this.makeProxy('notes', mockNotes);
+    this._labReports = this.makeProxy('labReports', mockLabReports);
+    this._projects = this.makeProxy('projects', mockProjects);
+    this._previousPapers = this.makeProxy('previousPapers', mockPreviousPapers);
+    this._attendance = this.makeProxy('attendance', mockAttendance);
+    this._results = this.makeProxy('results', mockResults);
+    this._feedback = this.makeProxy('feedback', mockFeedback);
+    this._fees = this.makeProxy('fees', mockFees);
+    this._timetable = this.makeProxy('timetable', mockTimetable);
+    this._calendarEvents = this.makeProxy('calendarEvents', mockCalendarEvents);
+    this._books = this.makeProxy('books', mockBooks);
+    this._borrowings = this.makeProxy('borrowings', mockBorrowings);
+    this._hostelRooms = this.makeProxy('hostelRooms', mockHostelRooms);
+    this._hostelAssignments = this.makeProxy('hostelAssignments', mockHostelAssignments);
+    this._internships = this.makeProxy('internships', mockInternships);
+    this._internshipApplications = this.makeProxy('internshipApplications', mockInternshipApplications);
+    this._placements = this.makeProxy('placements', mockPlacements);
+    this._forumPosts = this.makeProxy('forumPosts', mockForumPosts);
+    this._forumComments = this.makeProxy('forumComments', mockForumComments);
+    this._settings = this.load('settings', mockUniversitySettings);
+    this._courses = this.makeProxy('courses', mockCourses);
+    this._departments = this.makeProxy('departments', mockDepartments);
+  }
+
+  get profiles() { return this._profiles; }
+  set profiles(val) { this._profiles = this.makeProxy('profiles', val); this.save('profiles', val); }
+
+  get notices() { return this._notices; }
+  set notices(val) { this._notices = this.makeProxy('notices', val); this.save('notices', val); }
+
+  get assignments() { return this._assignments; }
+  set assignments(val) { this._assignments = this.makeProxy('assignments', val); this.save('assignments', val); }
+
+  get submissions() { return this._submissions; }
+  set submissions(val) { this._submissions = this.makeProxy('submissions', val); this.save('submissions', val); }
+
+  get notes() { return this._notes; }
+  set notes(val) { this._notes = this.makeProxy('notes', val); this.save('notes', val); }
+
+  get labReports() { return this._labReports; }
+  set labReports(val) { this._labReports = this.makeProxy('labReports', val); this.save('labReports', val); }
+
+  get projects() { return this._projects; }
+  set projects(val) { this._projects = this.makeProxy('projects', val); this.save('projects', val); }
+
+  get previousPapers() { return this._previousPapers; }
+  set previousPapers(val) { this._previousPapers = this.makeProxy('previousPapers', val); this.save('previousPapers', val); }
+
+  get attendance() { return this._attendance; }
+  set attendance(val) { this._attendance = this.makeProxy('attendance', val); this.save('attendance', val); }
+
+  get results() { return this._results; }
+  set results(val) { this._results = this.makeProxy('results', val); this.save('results', val); }
+
+  get feedback() { return this._feedback; }
+  set feedback(val) { this._feedback = this.makeProxy('feedback', val); this.save('feedback', val); }
+
+  get fees() { return this._fees; }
+  set fees(val) { this._fees = this.makeProxy('fees', val); this.save('fees', val); }
+
+  get timetable() { return this._timetable; }
+  set timetable(val) { this._timetable = this.makeProxy('timetable', val); this.save('timetable', val); }
+
+  get calendarEvents() { return this._calendarEvents; }
+  set calendarEvents(val) { this._calendarEvents = this.makeProxy('calendarEvents', val); this.save('calendarEvents', val); }
+
+  get books() { return this._books; }
+  set books(val) { this._books = this.makeProxy('books', val); this.save('books', val); }
+
+  get borrowings() { return this._borrowings; }
+  set borrowings(val) { this._borrowings = this.makeProxy('borrowings', val); this.save('borrowings', val); }
+
+  get hostelRooms() { return this._hostelRooms; }
+  set hostelRooms(val) { this._hostelRooms = this.makeProxy('hostelRooms', val); this.save('hostelRooms', val); }
+
+  get hostelAssignments() { return this._hostelAssignments; }
+  set hostelAssignments(val) { this._hostelAssignments = this.makeProxy('hostelAssignments', val); this.save('hostelAssignments', val); }
+
+  get internships() { return this._internships; }
+  set internships(val) { this._internships = this.makeProxy('internships', val); this.save('internships', val); }
+
+  get internshipApplications() { return this._internshipApplications; }
+  set internshipApplications(val) { this._internshipApplications = this.makeProxy('internshipApplications', val); this.save('internshipApplications', val); }
+
+  get placements() { return this._placements; }
+  set placements(val) { this._placements = this.makeProxy('placements', val); this.save('placements', val); }
+
+  get forumPosts() { return this._forumPosts; }
+  set forumPosts(val) { this._forumPosts = this.makeProxy('forumPosts', val); this.save('forumPosts', val); }
+
+  get forumComments() { return this._forumComments; }
+  set forumComments(val) { this._forumComments = this.makeProxy('forumComments', val); this.save('forumComments', val); }
+
+  get settings() { return this._settings; }
+  set settings(val) { this._settings = val; this.save('settings', val); }
+
+  get courses() { return this._courses; }
+  set courses(val) { this._courses = this.makeProxy('courses', val); this.save('courses', val); }
+
+  get departments() { return this._departments; }
+  set departments(val) { this._departments = this.makeProxy('departments', val); this.save('departments', val); }
 
   // Simple state update triggers
   postToForum(title: string, content: string, courseId: string, studentId: string) {

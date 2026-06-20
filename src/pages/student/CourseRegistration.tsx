@@ -1,21 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { uetDB } from '../../data/mockData';
 import { BookOpen, User, Calendar, CheckSquare, PlusCircle, CheckCircle2 } from 'lucide-react';
+import { useProfile } from '../../hooks/useProfile';
 
 export default function StudentCourseRegistration() {
+  const { profile } = useProfile();
   const [courses, setCourses] = useState(uetDB.courses);
-  const [enrolled, setEnrolled] = useState<string[]>(['course-se', 'course-mp']); // Pre-registered
+  const [enrolled, setEnrolled] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
 
-  const handleEnroll = (id: string) => {
-    if (enrolled.includes(id)) {
-      setEnrolled(enrolled.filter(item => item !== id));
-    } else {
-      setEnrolled([...enrolled, id]);
+  // Load registered courses on mount or profile change
+  useEffect(() => {
+    if (profile) {
+      const stored = localStorage.getItem(`uet_registered_courses_${profile.id}`);
+      if (stored) {
+        setEnrolled(JSON.parse(stored));
+      } else {
+        // Fallback or default registered courses for demonstration
+        setEnrolled(['course-se', 'course-mp']);
+      }
     }
+  }, [profile]);
+
+  const handleEnroll = (id: string) => {
+    if (!profile) return;
+    setEnrolled((prev) => {
+      const next = prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id];
+      localStorage.setItem(`uet_registered_courses_${profile.id}`, JSON.stringify(next));
+      return next;
+    });
   };
 
   const handleConfirmRegistration = () => {
+    if (!profile) return;
+    localStorage.setItem(`uet_registered_courses_${profile.id}`, JSON.stringify(enrolled));
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
   };

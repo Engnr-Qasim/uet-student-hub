@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
+import { uetDB } from '../../data/mockData';
 import { triggerDevNotification } from '../../lib/notifications';
 
 export default function StudentFeedback() {
@@ -22,6 +23,11 @@ export default function StudentFeedback() {
 
     const authorName = currentUser?.name || 'Anonymous Student';
     const emailToUse = settings.dev_email || 'info.qasimusman.cse@gmail.com';
+
+    // Add to the local reactive DB so admins and teachers can audit it
+    if (currentUser) {
+      uetDB.addFeedback(currentUser.id, category, title, comments);
+    }
 
     // Dispatches a highly detailed system event
     triggerDevNotification(
